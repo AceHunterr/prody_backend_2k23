@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-#!2kd#m*rg3c)gzwy4o-b9z20@(_g(5k%qja4rhry4)gg*&da#
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Application definition
 
@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',  # Add this line
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -72,6 +75,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3'
+#         #     'ENGINE': 'django.db.backends.postgresql',
+#         #     'NAME': 'railway',
+#         #     'USER': 'postgres',
+#         #     'PASSWORD': '7xRZWJJbuIsJShpOrNcZ',
+#         #     'HOST': 'containers-us-west-127.railway.app',
+#         #     'PORT': '6843',
+#     }
+# }
 
 DATABASES = {
     'default': {
