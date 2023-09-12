@@ -1,6 +1,6 @@
 from rest_framework import generics
-from .models import Event
-from .serializers import EventSerializer
+from .models import Event, Team
+from .serializers import EventSerializer, TeamSerializer
 
 
 class EventListView(generics.ListCreateAPIView):
@@ -11,3 +11,13 @@ class EventListView(generics.ListCreateAPIView):
 class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+
+
+class TeamView(generics.ListCreateAPIView):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+
+
+class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
