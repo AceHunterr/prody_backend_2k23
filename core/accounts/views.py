@@ -1,34 +1,23 @@
-# accounts/views.py
-
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+
 from .serializers import UserSerializer
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
-from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from .models import CustomUser
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
 
 
-@api_view(['POST'])
-def register_user(request):
-    if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RegisterUserView(generics.CreateAPIView):
+    serializer_class = UserSerializer
 
 
-@api_view(['POST'])
-def user_login(request):
-    if request.method == 'POST':
+class UserLoginView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
 
@@ -49,10 +38,9 @@ def user_login(request):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def user_logout(request):
-    if request.method == 'POST':
+class UserLogoutView(generics.CreateAPIView):
+    def create(self, request, *args, **kwargs):
         try:
             # Delete the user's token to logout
             request.user.auth_token.delete()
