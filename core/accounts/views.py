@@ -13,6 +13,18 @@ from rest_framework.authtoken.models import Token
 class RegisterUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+
+        # After the user is created, you can add the user_id to the response data
+        # Assuming the user_id is returned by the serializer
+        print(response.data)
+        user_id = response.data.get('user_id')
+        if user_id is not None:
+            response.data['user_id'] = user_id
+
+        return Response({'Prodyogiki ID': user_id}, status=status.HTTP_200_OK)
+
 
 class UserLoginView(generics.CreateAPIView):
     serializer_class = UserSerializer

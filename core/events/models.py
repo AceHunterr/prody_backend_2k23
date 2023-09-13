@@ -1,7 +1,11 @@
 from django.db import models
 from django.conf import settings
-# Assuming 'CustomUser' is the correct model name
 from accounts.models import CustomUser
+import random
+
+
+def generate_unique_team_id():
+    return f'#PDTM{random.randint(100000, 999999)}'
 
 
 class Event(models.Model):
@@ -23,7 +27,11 @@ class Event(models.Model):
 
 
 class Team(models.Model):
+    team_id = models.CharField(
+        max_length=12, unique=True)
     name = models.CharField(max_length=100)
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='teams')
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name='teams', blank=True)
 
