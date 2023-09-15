@@ -1,7 +1,12 @@
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from rest_framework import generics
 from .models import Event, Team
-from .serializers import EventSerializer, TeamSerializer
+from .serializers import EventSerializer, TeamSerializer, EventRegistrationSerializer
 from accounts.models import CustomUser
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
 
 
 class EventListView(generics.ListCreateAPIView):
@@ -51,3 +56,17 @@ class TeamView(generics.ListCreateAPIView):
 class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+
+
+@api_view(['POST'])
+def register_event(request, event_id):
+    if request.method == 'POST':
+        serializer = EventRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data['user_id']
+            user = CustomUser.objects.get(user_id=user_id)
+            event = Event.objects.get(id=event_id)
+            user.registered_events.add(event)
+            return Response({'message': 'Event registered successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

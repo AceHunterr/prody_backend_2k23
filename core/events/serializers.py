@@ -33,3 +33,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     def generate_unique_team_id(self):
         return f'#PDTM{random.randint(100000, 999999)}'
+
+
+class EventRegistrationSerializer(serializers.Serializer):
+    user_id = serializers.CharField(max_length=12)

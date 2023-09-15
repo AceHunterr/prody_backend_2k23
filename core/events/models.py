@@ -15,7 +15,7 @@ class Event(models.Model):
     poster = models.ImageField(upload_to='posters/')
     date_time = models.DateTimeField()
     registered_users = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name='events_registered', blank=True)
+        CustomUser, related_name='reg_users', blank=True)
     is_live = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     is_team_event = models.BooleanField(default=False)
