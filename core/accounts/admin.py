@@ -1,12 +1,11 @@
-# core/accounts/admin.py
-
 from django.contrib import admin
 from .models import CustomUser
 from import_export.admin import ImportExportModelAdmin
-from .resources import CustomUserResource  
+from .resources import CustomUserResource
+
 
 class CustomUserAdmin(ImportExportModelAdmin):
-    resource_class = CustomUserResource  # Use the custom resource
+    resource_class = CustomUserResource
     list_display = ('username', 'email', 'user_id', 'get_registered_events')
 
     def get_registered_events(self, obj):

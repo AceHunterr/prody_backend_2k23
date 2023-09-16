@@ -23,3 +23,7 @@ class CustomUser(AbstractUser):
 
     def register_for_team(self, team):
         self.registered_teams.add(team)
+
+    def clear_registered_events(self):
+        for event in self.registered_events.all():
+            event.registered_users.remove(self)
