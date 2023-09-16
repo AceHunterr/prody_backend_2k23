@@ -6,12 +6,18 @@ from .resources import CustomUserResource
 
 class CustomUserAdmin(ImportExportModelAdmin):
     resource_class = CustomUserResource
-    list_display = ('username', 'email', 'user_id', 'get_registered_events')
+    list_display = ('username', 'email', 'user_id',
+                    'get_registered_events', 'get_registered_teams')
 
     def get_registered_events(self, obj):
         return ", ".join([event.name for event in obj.registered_events.all()])
 
     get_registered_events.short_description = 'Registered Events'
+
+    def get_registered_teams(self, obj):
+        return ", ".join([team.name for team in obj.registered_teams.all()])
+
+    get_registered_teams.short_description = 'Registered Teams'
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
