@@ -64,7 +64,10 @@ def register_event(request, event_id):
         serializer = EventRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user_id = serializer.validated_data['user_id']
+            print(user_id)
+            print(CustomUser.objects.all)
             user = CustomUser.objects.get(user_id=user_id)
+            print(user)
             event = Event.objects.get(id=event_id)
             user.registered_events.add(event)
             return Response({'message': 'Event registered successfully'}, status=status.HTTP_201_CREATED)
