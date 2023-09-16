@@ -11,8 +11,8 @@ def generate_unique_team_id():
 class Event(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    abstract_link = models.URLField()
-    poster = models.ImageField(upload_to='posters/')
+    abstract_link = models.URLField(blank=True)
+    poster = models.ImageField(upload_to='posters/', blank=True)
     date_time = models.DateTimeField()
     registered_users = models.ManyToManyField(
         CustomUser, related_name='reg_users', blank=True)
@@ -32,8 +32,10 @@ class Team(models.Model):
     name = models.CharField(max_length=100)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='teams')
-    members = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name='teams', blank=True)
+    # members = models.ManyToManyField(
+    #     settings.AUTH_USER_MODEL, related_name='teams', blank=True)
+    registered_users = models.ManyToManyField(
+        CustomUser, related_name='reg_users_teams', blank=True)
 
     def __str__(self):
         return self.name

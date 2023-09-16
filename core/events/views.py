@@ -80,3 +80,27 @@ def register_event(request, event_id):
                 return Response({'error': 'Event with provided event_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST'])
+def register_team(request, team_id):
+    if request.method == 'POST':
+        serializer = EventRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data['user_id']
+            try:
+                user = CustomUser.objects.get(user_id=user_id)
+                team = Team.objects.get(id=team_id)
+                if user.registered_teams.filter(id=team_id).exists():
+                    return Response({'error': 'User is already registered for this event'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    user.registered_teams.add(team)
+                    # Update the registered_users field of the event
+                    team.registered_users.add(user)
+                    return Response({'message': 'Event registered successfully'}, status=status.HTTP_201_CREATED)
+            except CustomUser.DoesNotExist:
+                return Response({'error': 'User with provided user_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            except Team.DoesNotExist:
+                return Response({'error': 'Event with provided event_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

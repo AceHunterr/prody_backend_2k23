@@ -35,5 +35,24 @@ class CustomUserAdmin(ImportExportModelAdmin):
         for event in added_events:
             event.registered_users.add(form.instance)
 
+        # Get the updated set of registered events after saving
+        updated_registered_teams = set(form.instance.registered_teams.all())
+
+        # Find events that were removed from registration
+        removed_teams = set(
+            form.initial['registered_teams']) - updated_registered_teams
+
+        # Find events that were added to registration
+        added_teams = updated_registered_teams - \
+            set(form.initial['registered_teams'])
+
+        # Remove user from removed events' registered_users
+        for team in removed_teams:
+            team.registered_users.remove(form.instance)
+
+        # Add user to added events' registered_users
+        for team in added_teams:
+            team.registered_users.add(form.instance)
+
 
 admin.site.register(CustomUser, CustomUserAdmin)

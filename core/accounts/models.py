@@ -14,6 +14,8 @@ class CustomUser(AbstractUser):
         max_length=12, unique=True, default=generate_default_user_id)
     registered_events = models.ManyToManyField(
         'events.Event', related_name='reg_users', blank=True)
+    registered_teams = models.ManyToManyField(
+        'events.Team', related_name='reg_users_teams', blank=True)
 
     def __str__(self):
         return f'{self.username} - {self.user_id}'
