@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Event, Team
 from import_export.admin import ImportExportModelAdmin
 from django.contrib.admin import RelatedFieldListFilter
+from .resources import CustomTeamResource, CustomEventResource
 
 
 class CustomRelatedFieldListFilter(RelatedFieldListFilter):
@@ -10,6 +11,7 @@ class CustomRelatedFieldListFilter(RelatedFieldListFilter):
 
 
 class EventAdmin(ImportExportModelAdmin):
+    resource_class = CustomEventResource
     list_display = ('id', 'name', 'get_registered_users',
                     'get_registered_teams')
     list_filter = [('registered_users', CustomRelatedFieldListFilter),
@@ -66,6 +68,7 @@ class EventAdmin(ImportExportModelAdmin):
 
 
 class TeamAdmin(ImportExportModelAdmin):
+    resource_class = CustomTeamResource
     list_display = ('id', 'name', 'team_id',
                     'get_registered_users', 'get_registered_events')
     # list_filter = ('registered_events__name',)
