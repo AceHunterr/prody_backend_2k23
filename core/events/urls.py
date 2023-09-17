@@ -1,6 +1,6 @@
 from django.urls import path
 # from .views import EventListView, EventDetailView, TeamView, TeamDetailView, register_event, register_team
-from .views import EventListView, EventDetailView, create_team, join_team
+from .views import EventListView, EventDetailView, create_team, join_team, join_team_event
 
 urlpatterns = [
     path('events/', EventListView.as_view(), name='event-list'),
@@ -13,4 +13,8 @@ urlpatterns = [
     #          register_team, name='register_team'),
     path('create-team/', create_team, name='create-team'),
     path('join-team/', join_team, name='join-team'),
+    path('join-team-event/<int:event_id>/', join_team_event,
+         name='join-team-event'),  # Add this line
+
+
 ]

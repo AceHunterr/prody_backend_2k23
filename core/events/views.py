@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from rest_framework import generics
 from .models import Event, Team
-from .serializers import EventSerializer, EventRegistrationSerializer, TeamSerializer
+from .serializers import EventSerializer, EventRegistrationSerializer, TeamSerializer, JoinTeamEventSerializer
 from accounts.models import CustomUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -106,3 +106,29 @@ def join_team(request):
             return Response({'message': 'Team does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         except CustomUser.DoesNotExist:
             return Response({'message': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def join_team_event(request, event_id):
+    if request.method == 'POST':
+        team_id = request.data.get('team_id')
+
+        try:
+            event = Event.objects.get(pk=event_id)
+            team = Team.objects.get(team_id=team_id)
+
+            # Register team for the event
+            event.registered_teams.add(team)
+            team.registered_events.add(event)
+
+            # Transfer registered users to event
+            event.registered_users.add(*team.registered_users.all())
+            for user in team.registered_users.all():
+                user.registered_events.add(event)
+
+            return Response({'message': 'Team successfully registered for event.'}, status=status.HTTP_200_OK)
+
+        except Event.DoesNotExist:
+            return Response({'message': 'Event does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except Team.DoesNotExist:
+            return Response({'message': 'Team does not exist.'}, status=status.HTTP_404_NOT_FOUND)

@@ -50,3 +50,16 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class EventRegistrationSerializer(serializers.Serializer):
     user_id = serializers.CharField(max_length=12)
+
+
+class EventSelectionField(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        return Event.objects.filter(is_completed=False)
+
+    def to_representation(self, value):
+        return {'id': value.id, 'name': value.name}
+
+
+class JoinTeamEventSerializer(serializers.Serializer):
+    team_id = serializers.CharField(max_length=12)
+    events = EventSelectionField(queryset=Event.objects.all(), many=True)
