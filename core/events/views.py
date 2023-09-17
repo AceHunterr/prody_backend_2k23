@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from rest_framework import generics
 from .models import Event, Team
-from .serializers import EventSerializer, TeamSerializer, EventRegistrationSerializer
+from .serializers import EventSerializer, EventRegistrationSerializer, TeamSerializer
 from accounts.models import CustomUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -19,43 +19,14 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EventSerializer
 
 
-class TeamView(generics.ListCreateAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-
-    # def create(self, request, *args, **kwargs):
-    #     response = super().create(request, *args, **kwargs)
-
-    #     # Extract the team from the response data
-    #     team = response.data
-    #     print(response.data)
-
-    #     # Get the list of member IDs
-    #     member_ids = team.get('members', [])
-
-    #     # Fetch user information for each member
-    #     members_data = []
-    #     for member_id in member_ids:
-    #         try:
-    #             user = CustomUser.objects.get(id=member_id)
-    #             members_data.append({
-    #                 'user_id': user.user_id,
-    #                 # Add other user information you want to include
-    #             })
-    #         except CustomUser.DoesNotExist:
-    #             pass
-
-    #     response.data = {
-    #         # 'team_id': team['team_id'],
-    #         'members': members_data,
-    #     }
-
-    #     return response
+# class TeamView(generics.ListCreateAPIView):
+#     queryset = Team.objects.all()
+#     serializer_class = TeamSerializer
 
 
-class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
+# class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Team.objects.all()
+#     serializer_class = TeamSerializer
 
 
 @api_view(['POST'])
@@ -82,25 +53,56 @@ def register_event(request, event_id):
     return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+# @api_view(['POST'])
+# def register_team(request, team_id):
+#     if request.method == 'POST':
+#         serializer = EventRegistrationSerializer(data=request.data)
+#         if serializer.is_valid():
+#             user_id = serializer.validated_data['user_id']
+#             try:
+#                 user = CustomUser.objects.get(user_id=user_id)
+#                 team = Team.objects.get(id=team_id)
+#                 if user.registered_teams.filter(id=team_id).exists():
+#                     return Response({'error': 'User is already registered for this event'}, status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     user.registered_teams.add(team)
+#                     # Update the registered_users field of the event
+#                     team.registered_users.add(user)
+#                     return Response({'message': 'Event registered successfully'}, status=status.HTTP_201_CREATED)
+#             except CustomUser.DoesNotExist:
+#                 return Response({'error': 'User with provided user_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+#             except Team.DoesNotExist:
+#                 return Response({'error': 'Event with provided event_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
 @api_view(['POST'])
-def register_team(request, team_id):
+def create_team(request):
     if request.method == 'POST':
-        serializer = EventRegistrationSerializer(data=request.data)
+        serializer = TeamSerializer(data=request.data)
         if serializer.is_valid():
-            user_id = serializer.validated_data['user_id']
-            try:
-                user = CustomUser.objects.get(user_id=user_id)
-                team = Team.objects.get(id=team_id)
-                if user.registered_teams.filter(id=team_id).exists():
-                    return Response({'error': 'User is already registered for this event'}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    user.registered_teams.add(team)
-                    # Update the registered_users field of the event
-                    team.registered_users.add(user)
-                    return Response({'message': 'Event registered successfully'}, status=status.HTTP_201_CREATED)
-            except CustomUser.DoesNotExist:
-                return Response({'error': 'User with provided user_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-            except Team.DoesNotExist:
-                return Response({'error': 'Event with provided event_id does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response({'team_id': serializer.data['team_id']}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST'])
+def join_team(request):
+    if request.method == 'POST':
+        user_id = request.data.get('user_id')
+        team_id = request.data.get('team_id')
+
+        try:
+            team = Team.objects.get(team_id=team_id)
+            user = CustomUser.objects.get(user_id=user_id)
+            if user not in team.registered_users.all():
+                team.registered_users.add(user)
+                user.registered_teams.add(team)
+                return Response({'message': 'User added to the team successfully.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'User is already a member of this team.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Team.DoesNotExist:
+            return Response({'message': 'Team does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except CustomUser.DoesNotExist:
+            return Response({'message': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)

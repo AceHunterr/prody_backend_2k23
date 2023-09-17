@@ -1,6 +1,8 @@
+from .models import Team
 from rest_framework import serializers
 from .models import Event, Team
 import random
+from accounts.models import CustomUser
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -12,27 +14,38 @@ class EventSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ['name', 'event', 'members']
+        fields = ['id', 'team_id', 'name']
 
-    def create(self, validated_data):
-        members_data = validated_data.pop(
-            'members', [])  # Extract members data
 
-        # # Generate unique team ID
-        # team_id = self.generate_unique_team_id()
+# class TeamSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Team
+#         fields = ['name', 'registered_events', 'registered_users']
 
-        # # Add the generated team_id to the validated data
-        # validated_data['team_id'] = team_id
+#     def create(self, validated_data):
+#         registered_events_data = validated_data.pop('registered_events', [])
+#         registered_users_data = validated_data.pop('registered_users', [])
 
-        team = Team.objects.create(**validated_data)
+#         team = Team.objects.create(**validated_data)
 
-        # Add members to the team
-        team.members.set(members_data)
+#         for event_data in registered_events_data:
+#             # Assuming event_data is a dictionary
+#             event_id = event_data.get('id')
+#             if event_id is not None:
+#                 event = Event.objects.get(pk=event_id)
+#                 team.registered_events.add(event)
 
-        return team
+#         for user_data in registered_users_data:
+#             # Assuming user_data is a dictionary
+#             user_id = user_data.get('user_id')
+#             if user_id is not None:
+#                 user = CustomUser.objects.get(user_id=user_id)
+#                 team.registered_users.add(user)
 
-    def generate_unique_team_id(self):
-        return f'#PDTM{random.randint(100000, 999999)}'
+#         return team
+
+#     def generate_unique_team_id(self):
+#         return f'#PDTM{random.randint(100000, 999999)}'
 
 
 class EventRegistrationSerializer(serializers.Serializer):
