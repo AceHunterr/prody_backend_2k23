@@ -19,6 +19,11 @@ class CustomUserAdmin(ImportExportModelAdmin):
 
     get_registered_teams.short_description = 'Registered Teams'
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return []
+        return ['registered_teams', 'registered_events']
+
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
 

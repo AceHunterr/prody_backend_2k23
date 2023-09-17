@@ -30,10 +30,8 @@ class Team(models.Model):
     team_id = models.CharField(
         max_length=12, unique=True, default=generate_unique_team_id)
     name = models.CharField(max_length=100)
-    event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='teams', null=True, blank=True)
-    # members = models.ManyToManyField(
-    #     settings.AUTH_USER_MODEL, related_name='teams', blank=True)
+    registered_events = models.ManyToManyField(
+        'Event', related_name='teams', blank=True)
     registered_users = models.ManyToManyField(
         CustomUser, related_name='reg_users_teams', blank=True)
 
