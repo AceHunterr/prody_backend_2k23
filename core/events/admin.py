@@ -1,11 +1,21 @@
 from django.contrib import admin
 from .models import Event, Team
 from import_export.admin import ImportExportModelAdmin
+from django.contrib.admin import RelatedFieldListFilter
+
+
+class CustomRelatedFieldListFilter(RelatedFieldListFilter):
+    def field_choices(self, field, request, model_admin):
+        return field.get_choices(include_blank=False)
 
 
 class EventAdmin(ImportExportModelAdmin):
     list_display = ('id', 'name', 'get_registered_users',
                     'get_registered_teams')
+    list_filter = [('registered_users', CustomRelatedFieldListFilter),
+                   ('registered_teams', CustomRelatedFieldListFilter)]
+    search_fields = ['name', 'description',
+                     'registered_users__username', 'registered_teams__name']
 
     def get_registered_users(self, obj):
         return ", ".join([user.username for user in obj.registered_users.all()])
@@ -58,6 +68,11 @@ class EventAdmin(ImportExportModelAdmin):
 class TeamAdmin(ImportExportModelAdmin):
     list_display = ('id', 'name', 'team_id',
                     'get_registered_users', 'get_registered_events')
+    # list_filter = ('registered_events__name',)
+    # search_fields = ['name', 'registered_events']
+    list_filter = [('registered_events', CustomRelatedFieldListFilter),
+                   ('registered_users', CustomRelatedFieldListFilter)]
+    search_fields = ['name', 'registered_events__name',]
 
     def get_registered_users(self, obj):
         return ", ".join([user.username for user in obj.registered_users.all()])

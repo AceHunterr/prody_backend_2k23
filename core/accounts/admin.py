@@ -2,12 +2,23 @@ from django.contrib import admin
 from .models import CustomUser
 from import_export.admin import ImportExportModelAdmin
 from .resources import CustomUserResource
+from django.contrib.admin import RelatedFieldListFilter
+
+
+class CustomRelatedFieldListFilter(RelatedFieldListFilter):
+    def field_choices(self, field, request, model_admin):
+        return field.get_choices(include_blank=False)
 
 
 class CustomUserAdmin(ImportExportModelAdmin):
     resource_class = CustomUserResource
     list_display = ('username', 'email', 'user_id',
                     'get_registered_events', 'get_registered_teams')
+
+    list_filter = [('registered_events', CustomRelatedFieldListFilter),
+                   ('registered_teams', CustomRelatedFieldListFilter)]
+    search_fields = ['name', 'registered_events__name',
+                     'registered_teams__name']
 
     def get_registered_events(self, obj):
         return ", ".join([event.name for event in obj.registered_events.all()])

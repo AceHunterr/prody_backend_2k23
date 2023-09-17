@@ -62,4 +62,5 @@ class EventSelectionField(serializers.PrimaryKeyRelatedField):
 
 class JoinTeamEventSerializer(serializers.Serializer):
     team_id = serializers.CharField(max_length=12)
-    events = EventSelectionField(queryset=Event.objects.all(), many=True)
+    events = serializers.PrimaryKeyRelatedField(
+        queryset=Event.objects.all(), many=True)
